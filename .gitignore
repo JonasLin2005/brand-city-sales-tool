@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# PyInstaller output
+build/
+dist/
+*.spec
+
+# Excel lock files
+~$*.xlsx
+
+# macOS / local tooling
+.DS_Store
+.claude/

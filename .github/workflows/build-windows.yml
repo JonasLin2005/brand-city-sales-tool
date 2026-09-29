@@ -1,0 +1,37 @@
+name: Build Windows EXE
+
+# Runs on every push to main, and by hand from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install libraries
+        run: pip install pyinstaller -r requirements.txt
+
+      - name: Build the .exe
+        run: pyinstaller --onefile --icon icon.ico --name brands_crawler crawler.py
+
+      # Run the finished .exe on the demo workbooks so a broken build fails here,
+      # not on a colleague's machine.
+      - name: Smoke test on demo workbooks
+        run: |
+          Copy-Item workbooks\*.xlsx dist\
+          dist\brands_crawler.exe --dir dist --dry-run
+
+      # Download from the run's "Artifacts" section: the .exe plus demo workbooks.
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: brands_crawler-windows
+          path: dist/

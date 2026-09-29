@@ -1,0 +1,63 @@
+============================================================
+ 品牌城市月销量 抓取工具 · 使用说明
+ Brand City Monthly Sales Tool · How-To
+============================================================
+
+文件夹里有什么 What's in this folder
+  · workbooks/*.xlsx         —— 每个品牌一个表(要填的表)
+  · crawler.py               —— 程序源码(打包用)
+  · icon.ico                 —— 程序图标
+  · build_windows.bat        —— 【方式B】在一台 Windows 电脑上打包
+  · .github/workflows/...    —— 【方式A】在云端自动打包(推荐)
+本工具只填两列：F 品牌城市月销量（抓取） / G 月销量市占比（=E/F 公式）。
+
+============================================================
+第一步：做出程序 exe（只需 1 人做 1 次）
+STEP 1 — Produce the .exe (one person, once)
+============================================================
+【方式A · 云端打包，谁都不用装 Python】(推荐)
+  1. 登录 github.com，打开本仓库上方 "Actions"。
+  2. 选 "Build Windows EXE" → "Run workflow"，等变绿(约 3 分钟)。
+  3. 点进该运行 → 底部 "Artifacts" → 下载，解压得到 brands_crawler.exe。
+
+【方式B · 一台 Windows 电脑打包】
+  1. 该电脑装一次 Python：python.org（勾选 Add Python to PATH）。
+  2. 双击 build_windows.bat，自动打包。
+  3. 得到 dist\brands_crawler.exe。
+
+============================================================
+第二步：分发给同事
+STEP 2 — Send it out
+============================================================
+把 brands_crawler.exe 这一个文件，用 微信/钉钉/U盘/网盘 发给同事。
+同事什么都不用装。(exe 约 10–20MB 属正常。)
+
+============================================================
+第三步：日常使用（你和同事都一样）
+STEP 3 — Everyday use
+============================================================
+  1. 把 brands_crawler.exe 放到 "要填的 Excel 所在文件夹"。
+  2. 关掉这些 Excel 文件（不然存不了）。
+  3. 双击 brands_crawler.exe。
+       会问：是否补充新月份的行？
+         y    = 为每个 品牌/省/城市 补到当前月份的新行，再抓取
+         回车 = 只填现有的行
+  4. 跑完显示统计，按回车关闭。打开 Excel，F、G 两列已填好。
+
+============================================================
+要点 Notes
+============================================================
+· 数据源：设置了环境变量 SALES_API_URL 就走该接口，否则用内置示例数据。
+· 新月份数据源还没公布 → 留空；公布后再双击一次即可补上。
+· 用 y 补出来的新行，"投放数(E)"要你自己填；填后 G 自动算。
+· exe 必须和 .xlsx 放在同一文件夹。
+· 首次运行 Windows 若弹 SmartScreen：更多信息 → 仍要运行（自制程序正常提示）。
+· 只有改了代码(如新增品牌)才需重新打包；换月份/更新数据不用重打。
+------------------------------------------------------------
+English quick version:
+  1) Build the .exe once: Actions → "Build Windows EXE" → Run workflow,
+     or double-click build_windows.bat on one Windows PC.
+  2) Send brands_crawler.exe to colleagues (WeChat/USB). They install nothing.
+  3) Use: put the .exe next to the .xlsx files, close Excel, double-click,
+     answer y/Enter, done. F = sales, G = share (%).
+============================================================
