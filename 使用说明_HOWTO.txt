@@ -6,6 +6,8 @@
 文件夹里有什么 What's in this folder
   · workbooks/*.xlsx         —— 每个品牌一个表(要填的表)
   · crawler.py               —— 程序源码(打包用)
+  · crawler_mac.py           —— Mac 零依赖版
+  · 运行_RUN_mac.command      —— Mac 双击运行
   · icon.ico                 —— 程序图标
   · build_windows.bat        —— 【方式B】在一台 Windows 电脑上打包
   · .github/workflows/...    —— 【方式A】在云端自动打包(推荐)
@@ -43,6 +45,17 @@ STEP 3 — Everyday use
          y    = 为每个 品牌/省/城市 补到当前月份的新行，再抓取
          回车 = 只填现有的行
   4. 跑完显示统计，按回车关闭。打开 Excel，F、G 两列已填好。
+
+============================================================
+Mac 用户 Mac users
+============================================================
+  不需要 exe。把 crawler.py、crawler_mac.py、运行_RUN_mac.command
+  和 .xlsx 放在同一文件夹，关掉 Excel，双击 运行_RUN_mac.command。
+  · 首次若提示"无法验证开发者"：右键 → 打开 → 打开。
+  · 若提示安装"命令行开发者工具"：点安装，装完再双击一次。
+  · Mac 版不支持"补充新月份的行"，需要时用 Windows 版或手动添加。
+  No .exe needed: keep crawler.py, crawler_mac.py, the .command file and the
+  .xlsx files together, close Excel, double-click 运行_RUN_mac.command.
 
 ============================================================
 要点 Notes

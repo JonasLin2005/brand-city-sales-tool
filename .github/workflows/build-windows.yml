@@ -23,7 +23,7 @@ jobs:
         run: pyinstaller --onefile --icon icon.ico --name brands_crawler crawler.py
 
       # Run the finished .exe on the demo workbooks so a broken build fails here,
-      # not on a colleague's machine.
+      # not on a user's machine.
       - name: Smoke test on demo workbooks
         run: |
           Copy-Item workbooks\*.xlsx dist\
@@ -35,3 +35,35 @@ jobs:
         with:
           name: brands_crawler-windows
           path: dist/
+
+  # The Mac version must give exactly what crawler.py gives.
+  mac-version-check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fill with both versions
+        run: |
+          cp -r workbooks a && cp -r workbooks b
+          python crawler_mac.py --dir b
+          pip install -r requirements.txt
+          python crawler.py --dir a
+
+      - name: Compare
+        run: |
+          python - <<'PY'
+          import glob, os, sys
+          from openpyxl import load_workbook
+          bad = 0
+          for f in glob.glob("a/*.xlsx"):
+              a = load_workbook(f).active
+              b = load_workbook(os.path.join("b", os.path.basename(f))).active
+              bad += sum(ra != rb for ra, rb in zip(a.iter_rows(values_only=True),
+                                                    b.iter_rows(values_only=True)))
+          print("mismatched rows:", bad)
+          sys.exit(1 if bad else 0)
+          PY

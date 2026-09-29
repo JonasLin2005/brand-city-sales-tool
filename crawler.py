@@ -45,11 +45,7 @@ import json
 import os
 import sys
 import time
-
-try:
-    from openpyxl import load_workbook
-except ImportError:
-    sys.exit("Missing openpyxl. Run:  pip install -r requirements.txt")
+import urllib.request
 
 
 # ------------------------------------------------------------------ mappings
@@ -181,29 +177,38 @@ class DemoSource:
 
 
 class HttpSource:
-    """Any JSON endpoint that follows the contract in the module docstring."""
+    """Any JSON endpoint that follows the contract in the module docstring.
+    Uses requests when installed, the standard library otherwise."""
 
     def __init__(self, url, token=None, retries=3):
         try:
             import requests
+            self.session = requests.Session()
         except ImportError:
-            sys.exit("Missing requests. Run:  pip install -r requirements.txt")
+            self.session = None
         self.url, self.retries = url, retries
-        self.session = requests.Session()
         self.headers = {"Content-Type": "application/json;charset=utf-8"}
         if token:
             self.headers["Authorization"] = f"Bearer {token}"
         self.name = f"http ({url})"
+
+    def _post(self, body):
+        data = json.dumps(body).encode("utf-8")
+        if self.session is not None:
+            r = self.session.post(self.url, headers=self.headers, data=data, timeout=30)
+            r.raise_for_status()
+            return r.json()
+        req = urllib.request.Request(self.url, data=data, headers=self.headers,
+                                     method="POST")
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
 
     def records(self, date, area, dtype):
         body = {"date": date, "area": area, "type": dtype}
         last = None
         for attempt in range(self.retries):
             try:
-                r = self.session.post(self.url, headers=self.headers,
-                                      data=json.dumps(body), timeout=30)
-                r.raise_for_status()
-                return r.json().get("data") or []
+                return self._post(body).get("data") or []
             except Exception as e:  # noqa: BLE001
                 last = e
                 time.sleep(1.5 * (attempt + 1))
@@ -288,6 +293,11 @@ def safe_console():
 
 def main():
     safe_console()
+    try:
+        from openpyxl import load_workbook
+    except ImportError:
+        sys.exit("Missing openpyxl. Run:  pip install -r requirements.txt\n"
+                 "(On a Mac with nothing installed, use crawler_mac.py instead.)")
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=None)
     ap.add_argument("--dry-run", action="store_true")
